@@ -4,24 +4,28 @@ import Main from "./Main";
 import Loader from "./Loader";
 import Error from "./Error";
 import StartScreen from "./StartScreen";
+import Question from "./Question";
 
 const initialState = {
     questions: [],
-    status: "loading"
+    status: "loading",
+    index: 0,
 };
 
 function reducer(state, action) {
     switch (action.type) {
         case "dataReceived":
-            return {...initialState, questions: action.payload, status: "ready"};
+            return {...state, questions: action.payload, status: "ready"};
         case "dataFailed":
-            return {...initialState, status: "error"};
+            return {...state, status: "error"};
+        case "start":
+            return {...state, status: "active"};
         default: return state;
     }
 }
 
 export default function App() {
-    const [{questions, status}, dispatch] = useReducer(reducer, initialState);
+    const [{questions, status, index}, dispatch] = useReducer(reducer, initialState);
 
     const numQuestions = questions.length;
 
@@ -39,9 +43,8 @@ export default function App() {
             <Main>
                 {status === "loading" && <Loader />}
                 {status === "error" && <Error />}
-                {status === "ready" && <StartScreen numQuestions={numQuestions} />}
-                <p>1/15</p>
-                <p>Question?</p>
+                {status === "ready" && <StartScreen numQuestions={numQuestions} dispatch={dispatch} />}
+                {status === "active" && <Question question={questions[index]} />}
             </Main>
         </div>
     );
